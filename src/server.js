@@ -30,14 +30,12 @@ const init = async () => {
       return newResponse
     }
 
-    if (response instanceof Error) {
-      const newResponse = h.response({
-        status: 'error',
-        message: response.output.payload.message
-      })
-      newResponse.code(response.output.statusCode)
-      return newResponse
-    }
+    const newResponse = h.response({
+      status: 'error',
+      message: 'Maaf, terjadi kegagalan pada server kami.'
+    })
+    newResponse.code(500)
+    console.error(response)
 
     return response.continue || response
   })
