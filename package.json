@@ -1,0 +1,33 @@
+{
+  "name": "openmusic-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start-prod": "NODE_ENV=production node --experimental-specifier-resolution=node ./src/server.js",
+    "start-dev": "nodemon --experimental-specifier-resolution=node ./src/server.js",
+    "lint": "eslint ./src",
+    "migrate": "node-pg-migrate"
+  },
+  "keywords": [],
+  "author": "Ahmad Safar",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^20.1.5",
+    "@hapi/jwt": "^2.1.0",
+    "dotenv": "^10.0.0",
+    "joi": "^17.4.2",
+    "nanoid": "^3.1.25",
+    "node-pg-migrate": "^5.10.0",
+    "pg": "^8.7.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "nodemon": "^2.0.12"
+  }
+}
