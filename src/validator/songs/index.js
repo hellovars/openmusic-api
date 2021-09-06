@@ -1,4 +1,3 @@
-
 import InvariantError from '../../exceptions/InvariantError'
 import { SongPayloadSchema } from './schema'
 
