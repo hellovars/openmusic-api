@@ -41,7 +41,7 @@ export default class SongsHandler {
     }
   }
 
-  async getSongByIdHandler (request, h) {
+  async getSongByIdHandler (request) {
     const { id } = request.params
 
     const song = await this._service.getSongById(id)
@@ -54,7 +54,7 @@ export default class SongsHandler {
     }
   }
 
-  async putSongByIdHandler (request, h) {
+  async putSongByIdHandler (request) {
     this._validator.validateSongPayload(request.payload)
     const { id } = request.params
 
