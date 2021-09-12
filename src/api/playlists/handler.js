@@ -9,7 +9,6 @@ export default class PlaylistsHandler {
     this.postSongHandler = this.postSongHandler.bind(this)
     this.getSongsHandler = this.getSongsHandler.bind(this)
     this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this)
-    this.getUsersByUsernameHandler = this.getUsersByUsernameHandler.bind(this)
   }
 
   async postPlaylistHandler({ auth, payload }, h) {
@@ -101,17 +100,6 @@ export default class PlaylistsHandler {
     return {
       status: 'success',
       message: 'Lagu berhasil dihapus dari playlist',
-    }
-  }
-
-  async getUsersByUsernameHandler({ query }) {
-    const { username = '' } = query
-    const users = await this._service.getUsersByUsername(username)
-    return {
-      status: 'success',
-      data: {
-        users,
-      },
     }
   }
 }

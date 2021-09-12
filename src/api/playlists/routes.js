@@ -47,11 +47,6 @@ const routes = (handler) => [
       auth: 'openmusic_jwt',
     },
   },
-  {
-    method: 'GET',
-    path: '/users',
-    handler: handler.getUsersByUsernameHandler,
-  },
 ]
 
 export default routes

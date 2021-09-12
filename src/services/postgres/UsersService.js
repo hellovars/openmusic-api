@@ -57,6 +57,15 @@ export default class UsersService {
     return rows[0]
   }
 
+  async getUsersByUsername(username) {
+    const query = {
+      text: 'SELECT id, username, fullname FROM users WHERE username LIKE $1',
+      values: [`%${username}%`],
+    }
+    const { rows } = await this._pool.query(query)
+    return rows
+  }
+
   async verifyUserCredential(username, password) {
     const query = {
       text: 'SELECT id, password FROM users WHERE username = $1',
