@@ -7,7 +7,7 @@ const SongsValidator = {
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message)
     }
-  }
+  },
 }
 
 export default SongsValidator
