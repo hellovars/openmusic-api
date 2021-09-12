@@ -11,10 +11,10 @@ export default class AuthenticationsHandler {
       this.deleteAuthenticationHandler.bind(this)
   }
 
-  async postAuthenticationHandler(request, h) {
-    this._validator.validatePostAuthenticationPayload(request.payload)
+  async postAuthenticationHandler({ payload }, h) {
+    this._validator.validatePostAuthenticationPayload(payload)
 
-    const { username, password } = request.payload
+    const { username, password } = payload
     const id = await this._usersService.verifyUserCredential(username, password)
 
     const accessToken = this._tokenManager.generateAccessToken({ id })

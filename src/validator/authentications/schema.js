@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
 const PostAuthenticationPayloadSchema = Joi.object({
-  username: Joi.string().required(),
+  username: Joi.string().max(50).required(),
   password: Joi.string().required(),
 })
 

@@ -7,9 +7,9 @@ export default class UsersHandler {
     this.getUserByIdHandler = this.getUserByIdHandler.bind(this)
   }
 
-  async postUserHandler(request, h) {
-    this._validator.validateUserPayload(request.payload)
-    const { username, password, fullname } = request.payload
+  async postUserHandler({ payload }, h) {
+    this._validator.validateUserPayload(payload)
+    const { username, password, fullname } = payload
 
     const userId = await this._service.addUser({
       username,
@@ -28,8 +28,8 @@ export default class UsersHandler {
     return response
   }
 
-  async getUserByIdHandler(request) {
-    const { id } = request.params
+  async getUserByIdHandler({ params }) {
+    const { id } = params
     const user = await this._service.getUserById(id)
     return {
       status: 'success',

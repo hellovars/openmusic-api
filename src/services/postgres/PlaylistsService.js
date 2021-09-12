@@ -10,21 +10,21 @@ export default class PlaylistsService {
     this._collaborationService = collaborationService
   }
 
-  async addPlaylist({ name, owner }) {
+  async addPlaylist(payload) {
     const id = `playlist-${nanoid(16)}`
 
     const query = {
       text: 'INSERT INTO playlists VALUES($1, $2, $3) RETURNING id',
-      values: [id, name, owner],
+      values: [id, ...Object.values(payload)],
     }
 
-    const result = await this._pool.query(query)
+    const { rows } = await this._pool.query(query)
 
-    if (!result.rows[0].id) {
+    if (!rows[0].id) {
       throw new InvariantError('Playlist gagal ditambahkan')
     }
 
-    return result.rows[0].id
+    return rows[0].id
   }
 
   async getPlaylists(user) {
@@ -36,9 +36,8 @@ export default class PlaylistsService {
       values: [user],
     }
 
-    const result = await this._pool.query(query)
-
-    return result.rows
+    const { rows } = await this._pool.query(query)
+    return rows
   }
 
   async deletePlaylistById(id) {
@@ -47,9 +46,8 @@ export default class PlaylistsService {
       values: [id],
     }
 
-    const result = await this._pool.query(query)
-
-    if (!result.rowCount) {
+    const { rowCount } = await this._pool.query(query)
+    if (!rowCount) {
       throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan')
     }
   }
@@ -60,9 +58,8 @@ export default class PlaylistsService {
       values: [playlistId, songId],
     }
 
-    const result = await this._pool.query(query)
-
-    if (!result.rows[0].id) {
+    const { rows } = await this._pool.query(query)
+    if (!rows[0].id) {
       throw new InvariantError('Lagu gagal ditambahkan ke playlist')
     }
   }
@@ -76,9 +73,8 @@ export default class PlaylistsService {
       values: [playlistId],
     }
 
-    const result = await this._pool.query(query)
-
-    return result.rows
+    const { rows } = await this._pool.query(query)
+    return rows
   }
 
   async deleteSongFromPlaylist(playlistId, songId) {
@@ -87,23 +83,24 @@ export default class PlaylistsService {
       values: [playlistId, songId],
     }
 
-    const result = await this._pool.query(query)
-
-    if (!result.rowCount) {
+    const { rowCount } = await this._pool.query(query)
+    if (!rowCount) {
       throw new InvariantError('Lagu gagal dihapus')
     }
   }
 
   async verifyPlaylistOwner(id, owner) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE id = $1',
+      text: 'SELECT owner FROM playlists WHERE id = $1',
       values: [id],
     }
-    const result = await this._pool.query(query)
-    if (!result.rowCount) {
+
+    const { rows, rowCount } = await this._pool.query(query)
+    if (!rowCount) {
       throw new NotFoundError('Playlist tidak ditemukan')
     }
-    const playlist = result.rows[0]
+
+    const playlist = rows[0]
     if (playlist.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini')
     }
@@ -129,7 +126,7 @@ export default class PlaylistsService {
       text: 'SELECT id, username, fullname FROM users WHERE username LIKE $1',
       values: [`%${username}%`],
     }
-    const result = await this._pool.query(query)
-    return result.rows
+    const { rows } = await this._pool.query(query)
+    return rows
   }
 }

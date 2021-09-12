@@ -19,12 +19,12 @@ export default class UsersService {
       values: [id, username, hashedPassword, fullname],
     }
 
-    const result = await this._pool.query(query)
+    const { rows, rowCount } = await this._pool.query(query)
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new InvariantError('User gagal ditambahkan')
     }
-    return result.rows[0].id
+    return rows[0].id
   }
 
   async verifyNewUsername(username) {
@@ -33,9 +33,9 @@ export default class UsersService {
       values: [username],
     }
 
-    const result = await this._pool.query(query)
+    const { rowCount } = await this._pool.query(query)
 
-    if (result.rowCount > 0) {
+    if (rowCount) {
       throw new InvariantError(
         'Gagal menambahkan user. Username sudah digunakan.',
       )
@@ -48,13 +48,13 @@ export default class UsersService {
       values: [userId],
     }
 
-    const result = await this._pool.query(query)
+    const { rows, rowCount } = await this._pool.query(query)
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new NotFoundError('User tidak ditemukan')
     }
 
-    return result.rows[0]
+    return rows[0]
   }
 
   async verifyUserCredential(username, password) {
@@ -63,16 +63,15 @@ export default class UsersService {
       values: [username],
     }
 
-    const result = await this._pool.query(query)
+    const { rows, rowCount } = await this._pool.query(query)
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new AuthenticationError('Kredensial yang Anda berikan salah')
     }
 
-    const { id, password: hashedPassword } = result.rows[0]
+    const { id, password: hashedPassword } = rows[0]
 
     const match = await compare(password, hashedPassword)
-
     if (!match) {
       throw new AuthenticationError('Kredensial yang Anda berikan salah')
     }

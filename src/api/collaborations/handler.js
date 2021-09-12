@@ -8,10 +8,11 @@ export default class CollaborationsHandler {
     this.deleteCollaborationHandler = this.deleteCollaborationHandler.bind(this)
   }
 
-  async postCollaborationHandler(request, h) {
-    this._validator.validateCollaborationPayload(request.payload)
-    const { id: credentialId } = request.auth.credentials
-    const { playlistId, userId } = request.payload
+  async postCollaborationHandler({ auth, payload }, h) {
+    this._validator.validateCollaborationPayload(payload)
+
+    const { id: credentialId } = auth.credentials
+    const { playlistId, userId } = payload
 
     await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId)
     const collaborationId = await this._collaborationsService.addCollaboration(
@@ -32,6 +33,7 @@ export default class CollaborationsHandler {
 
   async deleteCollaborationHandler(request) {
     this._validator.validateCollaborationPayload(request.payload)
+
     const { id: credentialId } = request.auth.credentials
     const { playlistId, userId } = request.payload
 
