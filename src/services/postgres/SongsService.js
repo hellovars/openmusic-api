@@ -1,12 +1,12 @@
 import { nanoid } from 'nanoid'
-import pg from 'pg'
+import { Pool } from 'pg'
 import InvariantError from '../../exceptions/InvariantError'
 import NotFoundError from '../../exceptions/NotFoundError'
 import { mapDBToModel } from '../../utils'
 
 export default class SongsService {
   constructor() {
-    this._pool = new pg.Pool()
+    this._pool = new Pool()
   }
 
   async addSong({ title, year, performer, genre, duration }) {

@@ -3,38 +3,38 @@
 exports.shorthands = undefined
 
 exports.up = (pgm) => {
-  pgm.createTable('collaborations', {
+  pgm.createTable('playlistsongs', {
     id: {
-      type: 'VARCHAR(50)',
+      type: 'serial',
       primaryKey: true,
     },
     playlist_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
-    user_id: {
+    song_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
   })
 
   pgm.addConstraint(
-    'collaborations',
-    'unique_playlist_id_and_user_id',
-    'UNIQUE(playlist_id, user_id)',
+    'playlistsongs',
+    'unique_playlist_id_and_song_id',
+    'UNIQUE(playlist_id, song_id)',
   )
   pgm.addConstraint(
-    'collaborations',
-    'fk_collaborations.playlist_id_playlists.id',
+    'playlistsongs',
+    'fk_playlistsongs.playlist_id_playlists.id',
     'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
   )
   pgm.addConstraint(
-    'collaborations',
-    'fk_collaborations.user_id_users.id',
-    'FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE',
+    'playlistsongs',
+    'fk_playlistsongs.song_id_songs.id',
+    'FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE',
   )
 }
 
 exports.down = (pgm) => {
-  pgm.dropTable('collaborations')
+  pgm.dropTable('playlistsongs')
 }
