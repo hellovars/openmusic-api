@@ -1,9 +1,11 @@
 import Hapi from '@hapi/hapi'
 import Jwt from '@hapi/jwt'
+import Inert from '@hapi/inert'
 import dotenv from 'dotenv'
 dotenv.config()
 
 import ClientError from './exceptions/ClientError'
+import CacheService from './services/redis/CacheService'
 import { songs, SongsService, SongsValidator } from './modules/songs'
 import { users, UsersService, UsersValidator } from './modules/users'
 import {
@@ -22,13 +24,21 @@ import {
   CollaborationsService,
   CollaborationsValidator,
 } from './modules/collaborations'
+import { _exports, ProducerService, ExportsValidator } from './modules/exports'
+import { uploads, StorageService, UploadsValidator } from './modules/uploads'
 
 const init = async () => {
   const authenticationsService = new AuthenticationsService()
+  const cacheService = new CacheService()
+  const storageService = new StorageService('./uploads')
+
   const usersService = new UsersService()
   const songsService = new SongsService()
-  const collaborationsService = new CollaborationsService()
-  const playlistsService = new PlaylistsService(collaborationsService)
+  const collaborationsService = new CollaborationsService(cacheService)
+  const playlistsService = new PlaylistsService(
+    collaborationsService,
+    cacheService,
+  )
 
   const server = Hapi.server({
     host: process.env.HOST,
@@ -40,9 +50,7 @@ const init = async () => {
     },
   })
 
-  server.ext('onPreResponse', (request, h) => {
-    const { response } = request
-
+  server.ext('onPreResponse', ({ response }, h) => {
     if (response instanceof ClientError) {
       const newResponse = h.response({
         status: 'fail',
@@ -52,19 +60,15 @@ const init = async () => {
       return newResponse
     }
 
-    const newResponse = h.response({
-      status: 'error',
-      message: 'Maaf, terjadi kegagalan pada server kami.',
-    })
-    newResponse.code(500)
-
     return response.continue || response
   })
 
-  // Jwt Plugin
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ])
 
@@ -122,6 +126,21 @@ const init = async () => {
         collaborationsService,
         playlistsService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        validator: ExportsValidator,
+        playlistsService,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        validator: UploadsValidator,
       },
     },
   ])

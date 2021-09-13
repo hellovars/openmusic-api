@@ -3,8 +3,9 @@ import { nanoid } from 'nanoid'
 import InvariantError from '../../exceptions/InvariantError'
 
 export default class CollaborationsService {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool()
+    this._cacheService = cacheService
   }
 
   async addCollaboration(playlistId, userId) {
@@ -14,12 +15,14 @@ export default class CollaborationsService {
       text: 'INSERT INTO collaborations VALUES($1, $2, $3) RETURNING id',
       values: [id, playlistId, userId],
     }
+    this._cacheService.delete(`songs:${playlistId}`)
 
     const { rows, rowCount } = await this._pool.query(query)
 
     if (!rowCount) {
       throw new InvariantError('Kolaborasi gagal ditambahkan')
     }
+
     return rows[0].id
   }
 
@@ -28,6 +31,7 @@ export default class CollaborationsService {
       text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
       values: [playlistId, userId],
     }
+    this._cacheService.delete(`songs:${playlistId}`)
 
     const { rowCount } = await this._pool.query(query)
 

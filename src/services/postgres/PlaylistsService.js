@@ -5,9 +5,10 @@ import InvariantError from '../../exceptions/InvariantError'
 import NotFoundError from '../../exceptions/NotFoundError'
 
 export default class PlaylistsService {
-  constructor(collaborationService) {
+  constructor(collaborationService, cacheService) {
     this._pool = new Pool()
     this._collaborationService = collaborationService
+    this._cacheService = cacheService
   }
 
   async addPlaylist(payload) {
@@ -57,6 +58,7 @@ export default class PlaylistsService {
       text: 'INSERT INTO playlistsongs (playlist_id, song_id) VALUES($1, $2) RETURNING id',
       values: [playlistId, songId],
     }
+    this._cacheService.delete(`songs:${playlistId}`)
 
     const { rows } = await this._pool.query(query)
     if (!rows[0].id) {
@@ -65,16 +67,26 @@ export default class PlaylistsService {
   }
 
   async getSongsFromPlaylist(playlistId) {
-    const query = {
-      text: `SELECT songs.id, songs.title, songs.performer
+    try {
+      const result = await this._cacheService.get(`songs:${playlistId}`)
+      return JSON.parse(result)
+    } catch (error) {
+      const query = {
+        text: `SELECT songs.id, songs.title, songs.performer
        FROM songs
        JOIN playlistsongs
        ON songs.id = playlistsongs.song_id WHERE playlistsongs.playlist_id = $1`,
-      values: [playlistId],
-    }
+        values: [playlistId],
+      }
 
-    const { rows } = await this._pool.query(query)
-    return rows
+      const { rows } = await this._pool.query(query)
+
+      this._cacheService.set(
+        `playlistsongs:${playlistId}`,
+        JSON.stringify(rows),
+      )
+      return rows
+    }
   }
 
   async deleteSongFromPlaylist(playlistId, songId) {
@@ -82,6 +94,7 @@ export default class PlaylistsService {
       text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
       values: [playlistId, songId],
     }
+    this._cacheService.delete(`songs:${playlistId}`)
 
     const { rowCount } = await this._pool.query(query)
     if (!rowCount) {
