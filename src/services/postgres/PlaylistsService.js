@@ -58,7 +58,7 @@ export default class PlaylistsService {
       text: 'INSERT INTO playlistsongs (playlist_id, song_id) VALUES($1, $2) RETURNING id',
       values: [playlistId, songId],
     }
-    this._cacheService.delete(`songs:${playlistId}`)
+    this._cacheService.delete(`playlistsongs:${playlistId}`)
 
     const { rows } = await this._pool.query(query)
     if (!rows[0].id) {
@@ -68,7 +68,7 @@ export default class PlaylistsService {
 
   async getSongsFromPlaylist(playlistId) {
     try {
-      const result = await this._cacheService.get(`songs:${playlistId}`)
+      const result = await this._cacheService.get(`playlistsongs:${playlistId}`)
       return JSON.parse(result)
     } catch (error) {
       const query = {
@@ -94,7 +94,7 @@ export default class PlaylistsService {
       text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
       values: [playlistId, songId],
     }
-    this._cacheService.delete(`songs:${playlistId}`)
+    this._cacheService.delete(`playlistsongs:${playlistId}`)
 
     const { rowCount } = await this._pool.query(query)
     if (!rowCount) {
