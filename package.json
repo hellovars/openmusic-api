@@ -13,7 +13,7 @@
   "author": "Ahmad Safar",
   "license": "ISC",
   "dependencies": {
-    "@hapi/hapi": "^20.1.5",
+    "@hapi/hapi": "^20.2.1",
     "@hapi/inert": "^6.0.4",
     "@hapi/jwt": "^2.1.0",
     "amqplib": "^0.8.0",
